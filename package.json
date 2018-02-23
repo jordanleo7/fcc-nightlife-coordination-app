@@ -1,16 +1,41 @@
 {
   "name": "fcc-nightlife-coordination-app",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "dependencies": {
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "react-scripts": "1.1.1"
+  "description": "",
+  "engines": {
+    "node": "8.x"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  }
+    "start": "node server/index.js",
+    "heroku-postbuild": "cd react/ && npm install && npm install --only=dev --no-shrinkwrap && npm run build"
+  },
+  "cacheDirectories": [
+    "node_modules",
+    "react/node_modules"
+  ],
+  "dependencies": {
+    "cookie-session": "^2.0.0-beta.3",
+    "cors": "^2.8.4",
+    "dotenv": "^4.0.0",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "mongoose": "^5.0.0-rc2",
+    "passport": "^0.4.0",
+    "passport-github": "^1.1.0",
+    "passport-google-oauth20": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jordanleo7/fcc-nightlife-coordination-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jordanleo7/fcc-nightlife-coordination-app/issues"
+  },
+  "homepage": "https://github.com/jordanleo7/fcc-nightlife-coordination-app#readme"
 }
