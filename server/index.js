@@ -11,10 +11,10 @@ require('dotenv').config();
 const app = express();
 const cookieSession = require('cookie-session');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 // Priority serve any static files.
-app.use(express.static(path.resolve(__dirname, '../react/build')));
+app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 // Cross Origin Resource Sharing
 app.use(cors());
@@ -40,7 +40,7 @@ app.use(bodyParser.urlencoded({'extended':'true'}));
 
 // All remaining requests return the React app, so it can handle routing.
 app.get('*', function(request, response) {
-  response.sendFile(path.resolve(__dirname, '../react/build', 'index.html'));
+  response.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });
 
 app.listen(PORT, () => console.log(`Express listening on port ${PORT}`))
