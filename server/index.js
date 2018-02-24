@@ -49,15 +49,17 @@ require('./config/passport');
 
 app.get('/auth/logout', (req,res) => {
   req.logout();
-  res.redirect('/');
+  res.redirect('http://localhost:3000/');
 })
 
 app.get('/auth/google', passport.authenticate('google', {
   scope: ['profile']
 }));
-// http://localhost:3000/mypolls
+
+
 app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => {
-  res.redirect('/mypolls');
+  // dev mode: http://localhost:3000/   prod mode: /
+  res.redirect('http://localhost:3000/');
 });
 
 const authCheck = (req, res, next) => {
@@ -66,7 +68,7 @@ const authCheck = (req, res, next) => {
     next();
   } else {
     // If user is not logged in
-    res.redirect('/auth/login');
+    res.redirect('/');
   }
 };
 

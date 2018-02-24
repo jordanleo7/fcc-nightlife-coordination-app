@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import './SearchResults'
 class SearchResults extends Component {
 
@@ -22,8 +21,8 @@ class SearchResults extends Component {
     }
 
     return (
-      <div className="pt-2 pb-5">
-        <ul className="list-group">{results}</ul>
+      <div className="pt-3 pb-5">
+        <ul className="list-group pb-2">{results}</ul>
         <div>Search results provided by <a href="https://www.yelp.com/">Yelp</a></div>
       </div>
     );
