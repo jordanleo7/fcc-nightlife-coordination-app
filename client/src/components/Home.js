@@ -8,8 +8,7 @@ class Home extends Component {
     super(props);
     this.state = {
       searchQuery: '',
-      searchResults: '',
-      searchResultsJSON: ''
+      searchResults: JSON.parse(localStorage.getItem('searchResults')) || ''
     }
     this.handleSearchQueryText = this.handleSearchQueryText.bind(this);
     this.handleSearchQuery = this.handleSearchQuery.bind(this);
@@ -25,6 +24,7 @@ class Home extends Component {
     .then((response) => {
       console.log(response);
       this.setState({searchResults: response.data})
+      localStorage.setItem('searchResults', JSON.stringify(response.data));
     })
     .catch((error) => {
       console.log(error);
@@ -35,6 +35,8 @@ class Home extends Component {
     return (
       <div className="container-fluid">
         <div className="row">
+          <div className="col-12 pt-3"> 🍸🥃🍷🍺🍶🍻🥂🍹🍾🎇🌃🏙🌌🌉
+          </div>
           <div className="col-12 pt-3">
             <form onSubmit={this.handleSearchQuery}>
               <div className="form-row">
@@ -61,7 +63,6 @@ class Home extends Component {
               </div>
             </form>
           </div>
-          <div>{this.state.searchResultsJSON}</div>
           <div className="col-12">
             <SearchResults data={this.state.searchResults} />
           </div>

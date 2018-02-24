@@ -101,10 +101,8 @@ app.get('/api/yelp/search/*', function (req, res) {
     location: 'San Francisco, CA'
   };
   client.search(searchRequest).then(response => {
-    const firstResult = response.jsonBody.businesses; // [0]
-    const prettyJSON = JSON.stringify(firstResult, null, 4);
-    console.log(prettyJSON);
-    res.send(firstResult);
+    const Results = response.jsonBody.businesses;
+    res.send(Results);
   }).catch(e => {
     console.log(e);
   });
