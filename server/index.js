@@ -37,7 +37,7 @@ app.use(passport.session());
 //
 // MongoDB
 //
-//const Poll = require('./models/Poll');
+const Business = require('./models/Business');
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI);
 mongoose.Promise = global.Promise;
@@ -95,10 +95,15 @@ const yelp = require('yelp-fusion');
 const yelpAPIKey = process.env.YELP_API_KEY;
 const client = yelp.client(yelpAPIKey);
 
-app.get('/api/yelp/search/*', function (req, res) {
-  const searchRequest = {
+app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
+  const searchQ = req.params.id;
+  console.log(searchQ);
+  /*   const searchRequest = {
     term: 'Starbucks',
     location: 'San Francisco, CA'
+  };*/
+  const searchRequest = {
+    location: req.params.id
   };
   client.search(searchRequest).then(response => {
     const Results = response.jsonBody.businesses;
@@ -108,7 +113,15 @@ app.get('/api/yelp/search/*', function (req, res) {
   });
 }) 
 
+// Toggle if user is going
+app.put('/api/togglegoing/:id', authCheck, urlEncodedParser, function (req, res) {
+  Business.findOne({'_id': req.params.id}, function (err, biz) {
+    console.log(err, biz);
+  })
+  .then(() => {
 
+  })
+})
 
 
 

@@ -3,8 +3,7 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
 	username: String,
-  googleId: String,
-  businesses: Array
+  googleId: String
 });
 
 const User = mongoose.model('nightlife_coordination_app_user', userSchema);

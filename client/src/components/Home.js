@@ -35,7 +35,7 @@ class Home extends Component {
     return (
       <div className="container-fluid">
         <div className="row">
-          <div className="col-12 pt-3"> 🍸🥃🍷🍺🍶🍻🥂🍹🍾🎇🌃🏙🌌🌉
+          <div className="col-12 pt-3"> <span role="img" area-label="nightlife emojis">🍸🥃🍷🍺🍶🍻🥂🍹🍾🎇🌃🏙🌌🌉</span>
           </div>
           <div className="col-12 pt-3">
             <form onSubmit={this.handleSearchQuery}>
