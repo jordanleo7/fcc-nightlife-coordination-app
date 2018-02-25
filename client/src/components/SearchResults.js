@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import './SearchResults.css'
+import axios from 'axios';
 
 class SearchResults extends Component {
 
-  handleToggleGoing(event) {
-    console.log(event)
+  handleToggleGoing(id, e) {
+    console.log(id, e)
+    axios.get('api/togglegoing/' + id)
+    .then((response) => {
+
+    })
+    .catch((error) => {
+      console.log(error);
+    })
   }
 
   render() {

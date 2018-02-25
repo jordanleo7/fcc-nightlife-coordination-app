@@ -114,9 +114,36 @@ app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
 }) 
 
 // Toggle if user is going
-app.put('/api/togglegoing/:id', authCheck, urlEncodedParser, function (req, res) {
-  Business.findOne({'_id': req.params.id}, function (err, biz) {
-    console.log(err, biz);
+app.get('/api/togglegoing/:id', authCheck, urlEncodedParser, function (req, res) {
+  // Search MongoDB for business
+  Business.findOne({'id': req.params.id}, function (err, biz) {
+    // If business not found, create it
+    if (biz === null) {
+      Business.create({id: req.params.id, going: [req.user.id]}).then((newBusiness) => {
+        console.log('Business created');
+        res.send('success');
+      })
+    } 
+    // If business found,
+    if (biz) {
+      // Search for user in the 'going' array
+      let foundUser = biz.going.find(function(e) {
+        return e === String(req.user._id);
+      })
+      // Then, if user is found, change their status to 'not going' by removing them from the business's going' array
+      if (foundUser !== undefined) {        
+        let userIndex = biz.going.indexOf(req.user._id);
+        biz.going.splice(userIndex, 1);
+        console.log(userIndex, '-1')
+        biz.save();
+      // Or, if user is not found, change their status to 'going' by adding them to the business's 'going' array
+      } else {
+        biz.going.push(String(req.user._id));
+        console.log('+1')
+        biz.save();
+      }
+      res.send('Going button click server side completed');
+    }
   })
   .then(() => {
 
