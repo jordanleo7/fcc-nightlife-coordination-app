@@ -40,8 +40,9 @@ app.use(passport.session());
 const Business = require('./models/Business');
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI);
-mongoose.Promise = global.Promise;
-
+// mongoose.Promise = global.Promise; 
+// Use bluebird
+mongoose.Promise = require('bluebird');
 //
 // User authentication
 // http://localhost:3000/
@@ -102,34 +103,32 @@ app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
     categories: 'Nightlife'
   };
 
-  client.search(searchRequest).then(response => {
-    let searchResults = response.jsonBody.businesses;
+  client.search(searchRequest)
+    .then(response => {
 
-    for (let i = 0; i < searchResults.length; ++i) {
-      Business.findOne({'id': searchResults[i].id}, function (err, business) {
-        if (err) console.log(err);
-        if (business) {
-          addTotalGoing(i, business.totalGoing);
-        } else {
-          addTotalGoing(i, 0);
-        }
-      })
-    }
+      let searchResults = response.jsonBody.businesses;
 
-      async function addTotalGoing(i, totalGoing){
+      for (let i = 0; i < searchResults.length; i++) {
+        Business.findOne({'id': searchResults[i].id}, function (business) {
+          if (business) {
+            addTotalGoing(i, business.totalGoing);
+          } else {
+            addTotalGoing(i, 0);
+          }
+        })
+      }
+
+      function addTotalGoing(i, totalGoing) {
         searchResults[i]["going"] = totalGoing
       }
 
-
-    Promise.all([searchResults, addTotalGoing]).then(function() {
       console.log(searchResults);
       res.send(searchResults);
-    });
 
-  })
-  .catch(e => {
-    console.log(e);
-  });
+    })
+    .catch(e => {
+      console.log(e);
+    });
 
 }) 
 
