@@ -96,144 +96,56 @@ const yelp = require('yelp-fusion');
 const yelpAPIKey = process.env.YELP_API_KEY;
 const client = yelp.client(yelpAPIKey);
 
-app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
 
+
+// Get Yelp API + MongoDB search results
+app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
+  // Yelp search params
   const searchRequest = {
     location: req.params.id,
     categories: 'Nightlife'
   };
-
+  // Search yelp
   client.search(searchRequest)
-    .then(response => {
-
-      let searchResults = response.jsonBody.businesses;
-
-      for (let i = 0; i < searchResults.length; i++) {
-        Business.findOne({'id': searchResults[i].id}, function (business) {
+  .then(response => {
+    // Yelp search results
+    let searchResults = response.jsonBody.businesses;
+    // Need to Check MongoDB for number of users going to each business
+    let promise1 = new Promise(function(resolve, reject) {
+      // Prevent res.send until promiseCounter = 20
+      let promiseCounter = 0;
+      // Loop through busineses
+      searchResults.map((result, index) => {
+        // Check MongoDB for Yelp business
+        Business.findOne({'id': result.id}, function (business) {
+          // If business found in MongoDB, add totalGoing count to Yelp results, otherwise add {'going': 0}
           if (business) {
-            addTotalGoing(i, business.totalGoing);
+            addTotalGoing(index, business.totalGoing);
+            //searchResults[index]["going"] = business.totalGoing;
           } else {
-            addTotalGoing(i, 0);
+            addTotalGoing(index, 0);
+            //searchResults[index]["going"] = 0;
           }
         })
-      }
+      })
 
-      function addTotalGoing(i, totalGoing) {
-        searchResults[i]["going"] = totalGoing
+      function addTotalGoing(index, totalGoing) {
+        searchResults[index]["going"] = totalGoing
+        promiseCounter +=1;
       }
-
+      // Once each Yelp result has a 'going' value, resolve promise
+      resolve(promiseCounter == searchResults.length);
+    });
+    // Send Yelp results with MongoDB 'going' key added to client
+    promise1.then(function(value) {
       console.log(searchResults);
       res.send(searchResults);
-
-    })
-    .catch(e => {
-      console.log(e);
+      console.log(value);
     });
 
+  })
+  .catch(e => {console.log(e);});
 }) 
-
-/*
-    function test() {
-      for (let i = 0; i < searchResults.length; i++) {
-        Business.findOne({'id': searchResults[i].id}, function (err, business) {
-          if (business) {
-            searchResults[i]["going"] = business.totalGoing;
-          } else {
-            searchResults[i]["going"] = 0;
-          }
-        })
-      }
-    }
-
-*/
-
-    /*
-    let Going = Promise.map(searchResults, function (searchResult) {
-      Business.findOne({'id': searchResult.id}), function (err, doc) {
-
-        console.log('hello', doc);
-      }
-    }).then(function() {
-      console.log('done son');
-    });
-*/
-
-    /*
-    function test() {
-      for (let i = 0; i < searchResults.length; i++) {
-        Business.findOne({'id': searchResults[i].id}, function (err, business) {
-          if (business) {
-            searchResults[i]["going"] = business.totalGoing;
-          } else {
-            searchResults[i]["going"] = 0;
-          }
-        })
-      }
-    }
-
-    test();
-*/
-    /*
-      function getGoingCount(i, callback) {
-        Business.findOne({'id':Results[i]["id"]}, function(err,doc){
-          if(doc){
-            callback(null, doc.totalGoing);
-          }else {
-            console.log('There was an error getting the postsCount');
-            callback(true, null);
-           }
-        })
-      }
-
-      for (let i = 0; i < Results.length; i++) {
-
-        getGoingCount(function(error, ))
-
-    }
-    */
-    /*let Going = Results.map((business, index) => {
-      Business.findOne({'id': business.id}), function (err, doc) {
-        return doc;
-      }
-    })*/
-
-    /*for (let i = 0; i < Results.length; i++) {
-      Results[i]["going"] = 0;
-      Business.findOne({'id': Results[i].id}, function (err, business) {
-        if (business) {
-          Results[i]["going"] = business.totalGoing;
-        }
-      }) 
-    }*/
-
-    /*
-    let goingResults = Results.map((business, index) => {
-      Business.findOne({'id': business.id}, function (err, biz) {
-        let temp = biz;
-        if (biz) {
-          //let tg = business.totalGoing;        
-          // console.log(Results[i].id);
-          temp.going = business.totalGoing;
-        } else {
-          //temp.going = 0;
-        }
-        return temp;
-      })
-    })*/
-
-    /*for (let i = 0; i < Results.length; i++) {
-      Business.findOne({'id': Results[i].id}, function (err, business) {
-        if (business) {
-          //let tg = business.totalGoing;        
-          console.log(Results[i].id);
-          Results[i]["going"] = business.totalGoing;
-        } else {
-          Results[i]["going"] = 0;
-        }
-      })
-    }*/
-
-
 
 
 
@@ -271,7 +183,7 @@ app.get('/api/togglegoing/:id', authCheck, urlEncodedParser, function (req, res)
         biz.save();
       }
 
-      res.send('Going button click server side completed');
+      res.send('Going button click, server side completed');
     }
   })
   .then(() => {
