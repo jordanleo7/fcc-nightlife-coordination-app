@@ -4,7 +4,8 @@ const Schema = mongoose.Schema;
 // Create Schema
 const BusinessSchema = new Schema({
   id: String,
-  going: Array
+  going: Array,
+  totalGoing: Number
 })
 
 // Create model

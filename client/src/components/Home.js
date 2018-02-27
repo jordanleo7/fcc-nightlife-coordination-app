@@ -47,7 +47,7 @@ class Home extends Component {
                     className="form-control col-12" 
                     value={this.state.searchQuery} 
                     onChange={this.handleSearchQueryText} 
-                    placeholder="Enter your bar here" 
+                    placeholder="Enter address, neighborhood, city, state or zip" 
                     required 
                   />
                 </div>

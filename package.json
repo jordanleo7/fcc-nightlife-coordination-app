@@ -17,6 +17,7 @@
     "react/node_modules"
   ],
   "dependencies": {
+    "bluebird": "^3.5.1",
     "cookie-session": "^2.0.0-beta.3",
     "cors": "^2.8.4",
     "dotenv": "^4.0.0",
