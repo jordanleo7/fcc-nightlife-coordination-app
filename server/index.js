@@ -85,7 +85,7 @@ app.get('/isLoggedIn', function (req, res) {
 
 //
 // Answer API requests.
-//
+// middleware to parse all incoming requests into JSON
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({'extended':'true'}));
 
@@ -94,8 +94,104 @@ app.use(bodyParser.urlencoded({'extended':'true'}));
 //
 const yelp = require('yelp-fusion');
 const yelpAPIKey = process.env.YELP_API_KEY;
-const client = yelp.client(yelpAPIKey);
+const client = yelp.client(yelpAPIKey); // return a promise
 
+// query string parameters --> ?key=value&key2=value2 --> { key: value, key2: value2 } (produced through parsing the url)
+// dynamic routes 
+
+// User searches for Yelp businesses by location, server returns a list of businesses (from Yelp API) with number of users going to each business (from MongoDB)
+app.get('/api/yelp/search/:id', async (req, res) => {
+  // Declare Yelp search params
+  const searchRequest = {
+    location: req.params.id,
+    categories: 'Nightlife'
+  };
+  // Get Yelp search request   const firstResult = response.jsonBody.businesses[0];
+  const yelpResponse = await client.search(searchRequest).catch(console.error);
+  const body = JSON.parse(yelpResponse.body);
+  if (body.total === 0) {console.log(yelpResponse); return res.statusCode(204).end();} // If no results found, remember to add React message to refine search results
+  // Now that we have our Yelp response, we want to search MongoDB for all of the businesses' documents
+  // search the Business collection for all businesses that match the YelpResponse id
+  // businesses = []; if the Business.find() does not find any matches
+
+  // { id: id } -> { id }
+  // Object.assign(target, source)
+
+  // conserve database calls (vs conserve loop iterations)
+  // const businesses = await Business.find({
+  //   id: { $in: yelpResponse.businesses.map((yelpBusinessObject) => {
+  //     // MUTATE the yelpBusinessObject data here
+      
+  //     // look up fast way of stripping multiple fields
+  //    return yelpBusinessObject.id; // must return the id of the businessObject for use with $in
+  //   }) }
+  // }).catch(console.error);
+  return res.json(body.businesses.map(async ({id, ...businessObject}) => {
+    const business = await Business.findOne({ id }).catch(console.error);
+    if (!business) return Object.assign({ id, going: 0 }, businessObject);
+    return Object.assign(
+      {'going': business.going.length},
+      businessObject
+    );
+    // one db call for each yelp business   <li>Going {this.props.going.length || 0 }</li>
+    // if null add going = 0 property to yelp business obj
+    // if db business exists combine with yelp business data and return
+  }));
+
+  /**
+   * 20 x 1000
+   * loop over yelpRes.businesses and for each businessObject loop over the dbBusinesses array and find matching ids
+   * loop over dbBusinesses and for each business loop over the yelpRes.businesses array and find matching ids
+   */
+
+  // accounting at this point: access to database business that match the yelp response as "businesses" (with db data)
+  // yelp response businesses (with yelp data) as yelpResponse.businesses
+
+
+  // finally return JSON array of business objects with [] + [] properties
+//           if(business) {
+//             yelpBusiness.going = going.length;
+//           } else {
+//             yelpBusiness.going = 0;
+//           }
+  /**
+   * promises can be handled using then/catch or await [try/catch, promise-catch]
+   */
+  
+  // Add MongoDB number of users going {'going': 1} to the Yelp result
+
+
+});
+
+
+/*
+data
+ok
+[{ id: 'dominos-pizza-saint-michael',
+[0]     name: 'Domino\'s Pizza',
+[0]     image_url: 'https://s3-media3.fl.yelpcdn.com/bphoto/oDsMXSQuME1agZsheUkP3w/o.jpg',
+[0]     is_closed: false,
+[0]     url: 'https://www.yelp.com/biz/dominos-pizza-saint-michael?adjust_creative=n1AvOrqywXD0f-BUvr7UTQ&utm_campaign=yelp_api_v3&utm_medium=api_v3_business_search&utm_source=n1AvOrqywXD0f-BUvr7UTQ',
+[0]     review_count: 6,
+[0]     categories: [ [Object], [Object], [Object] ],
+[0]     rating: 5,
+[0]     coordinates: { latitude: 45.2100067, longitude: -93.6630325 },
+[0]     transactions: [],
+[0]     price: '$',
+[0]     location: 
+[0]      { address1: '27 Central Ave E',
+[0]        address2: '',
+[0]        address3: '',
+[0]        city: 'Saint Michael',
+[0]        zip_code: '55376',
+[0]        country: 'US',
+[0]        state: 'MN',
+[0]        display_address: [Array] },
+[0]     phone: '+17634974848',
+[0]     display_phone: '(763) 497-4848',
+[0]     distance: 627.36804337732,
+[0]     going: 0 } ]
+*/
 
 /*
 // Get Yelp API + MongoDB search results
@@ -119,7 +215,9 @@ app.get('/api/yelp/search/:id', urlEncodedParser, async(req, res) => {
     }
     finally {
       const going = business ? business.totalGoing : 0;
+      return Object.assign({going}, searchResult)
       return { ...searchResult, going };
+      yelpBusiness.going = business.totalGoing;
     }
 }));
 
@@ -128,43 +226,43 @@ app.get('/api/yelp/search/:id', urlEncodedParser, async(req, res) => {
 });
 */
 
-// Get Yelp API + MongoDB search results
-app.get('/api/yelp/search/:id', urlEncodedParser, (req, res) => {
-  // Yelp search params
-  const searchRequest = {
-    location: req.params.id,
-    categories: 'Nightlife'
-  };
+// // Get Yelp API + MongoDB search results
+// app.get('/api/yelp/search/:id', urlEncodedParser, (req, res) => {
+//   // Yelp search params
+//   const searchRequest = {
+//     location: req.params.id,
+//     categories: 'Nightlife'
+//   };
 
-  client.search(searchRequest).then(yelpResponse => {
-    const searchResults = yelpResponse.jsonBody.businesses;
+//   client.search(searchRequest).then(yelpResponse => {
+//     const searchResults = yelpResponse.jsonBody.businesses;
 
-    return searchResults.map(yelpBusiness => {
-      return new Promise((resolve, reject) => {
-        Business.findOne({ id: yelpBusiness.id }).then(mongoBusiness => {
-          return mongoBusiness;
-        }).catch(() => {
-          return null;
-        }).then((business) => {
-          if(business) {
-            yelpBusiness.going = business.totalGoing;
-          } else {
-            yelpBusiness.going = 0;
-          }
-          resolve(yelpBusiness);
-        })
-      })
-    });
+//     return searchResults.map(yelpBusiness => {
+//       return new Promise((resolve, reject) => {
+//         Business.findOne({ id: yelpBusiness.id }).then(mongoBusiness => {
+//           return mongoBusiness;
+//         }).catch(() => {
+//           return null;
+//         }).then((business) => {
+//           if(business) {
+//             yelpBusiness.going = business.totalGoing;
+//           } else {
+//             yelpBusiness.going = 0;
+//           }
+//           resolve(yelpBusiness);
+//         })
+//       })
+//     });
 
-  }).then(pendingParsedResults => {
-    // return a single promise with the array of values. resolves when all the passed promises resolve.
-    return Promise.all(pendingParsedResults);
-  }).
-  then(parsedResults => {
-    console.log(parsedResults);
-    res.send(parsedResults);
-  });
-});
+//   }).then(pendingParsedResults => {
+//     // return a single promise with the array of values. resolves when all the passed promises resolve.
+//     return Promise.all(pendingParsedResults);
+//   }).
+//   then(parsedResults => {
+//     console.log(parsedResults);
+//     res.send(parsedResults);
+//   });
+// });
 
 /*
 // Get Yelp API + MongoDB search results
@@ -219,7 +317,7 @@ app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
 
 
 // Toggle if user is going
-app.get('/api/togglegoing/:id', authCheck, urlEncodedParser, function (req, res) {
+app.get('/api/togglegoing/:id', authCheck, function (req, res) {
   // Search MongoDB for business
   Business.findOne({'id': req.params.id}, function (err, biz) {
     // If business not found, create it
