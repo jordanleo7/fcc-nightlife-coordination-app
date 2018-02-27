@@ -97,7 +97,76 @@ const yelpAPIKey = process.env.YELP_API_KEY;
 const client = yelp.client(yelpAPIKey);
 
 
+/*
+// Get Yelp API + MongoDB search results
+app.get('/api/yelp/search/:id', urlEncodedParser, async(req, res) => {
+  // Yelp search params
+  const searchRequest = {
+    location: req.params.id,
+    categories: 'Nightlife'
+  };
 
+  const yelpResponse =  await client.search(searchRequest);
+  const searchResults = yelpResponse.jsonBody.businesses;
+
+  const parsedResults = await Promise.all(searchResults.map(async (searchResult) => {
+    let business;
+    try { 
+      business = await Business.findOne({ id: searchResult.id });
+    }
+    catch(error) {
+      business = null;
+    }
+    finally {
+      const going = business ? business.totalGoing : 0;
+      return { ...searchResult, going };
+    }
+}));
+
+  console.log(parsedResults);
+  res.send(parsedResults);
+});
+*/
+
+// Get Yelp API + MongoDB search results
+app.get('/api/yelp/search/:id', urlEncodedParser, (req, res) => {
+  // Yelp search params
+  const searchRequest = {
+    location: req.params.id,
+    categories: 'Nightlife'
+  };
+
+  client.search(searchRequest).then(yelpResponse => {
+    const searchResults = yelpResponse.jsonBody.businesses;
+
+    return searchResults.map(yelpBusiness => {
+      return new Promise((resolve, reject) => {
+        Business.findOne({ id: yelpBusiness.id }).then(mongoBusiness => {
+          return mongoBusiness;
+        }).catch(() => {
+          return null;
+        }).then((business) => {
+          if(business) {
+            yelpBusiness.going = business.totalGoing;
+          } else {
+            yelpBusiness.going = 0;
+          }
+          resolve(yelpBusiness);
+        })
+      })
+    });
+
+  }).then(pendingParsedResults => {
+    // return a single promise with the array of values. resolves when all the passed promises resolve.
+    return Promise.all(pendingParsedResults);
+  }).
+  then(parsedResults => {
+    console.log(parsedResults);
+    res.send(parsedResults);
+  });
+});
+
+/*
 // Get Yelp API + MongoDB search results
 app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
   // Yelp search params
@@ -127,7 +196,7 @@ app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
             //searchResults[index]["going"] = 0;
           }
         })
-      })
+      }).then(() => {console.log('.then worked')})
 
       function addTotalGoing(index, totalGoing) {
         searchResults[index]["going"] = totalGoing
@@ -146,7 +215,7 @@ app.get('/api/yelp/search/:id', urlEncodedParser, function (req, res) {
   })
   .catch(e => {console.log(e);});
 }) 
-
+*/
 
 
 // Toggle if user is going
