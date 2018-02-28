@@ -19,12 +19,12 @@ const Schema = mongoose.Schema;
 
 // Create Schema
 const BusinessSchema = new Schema({
-  id: String, // conver to yelpId
-  going: [User.UserSchema], // this provides validation that each element in the going array must adhere to the User schema definition that we imported from User.js
+  yelpId: String, // conver to yelpId
+  going: Array // Figure this out later: [User.UserSchema], // this provides validation that each element in the going array must adhere to the User schema definition that we imported from User.js
   // there is a relationship mechanic within Mongo/Mongoose called "populate" and it uses _id (aka oid, object id) references
 
   // remove in favor of going.length 
-  totalGoing: Number // replace in route handler by returning going.length in place of totalGoing
+  // totalGoing: Number // replace in route handler by returning going.length in place of totalGoing
 });
 
 // Create model

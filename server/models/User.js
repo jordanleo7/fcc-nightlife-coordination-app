@@ -10,5 +10,5 @@ const User = mongoose.model('nightlife_coordination_app_user', UserSchema);
 
 module.exports = {
   UserSchema,
-  User,
+  User
 };

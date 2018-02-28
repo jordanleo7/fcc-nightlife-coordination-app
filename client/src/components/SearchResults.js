@@ -4,11 +4,18 @@ import axios from 'axios';
 
 class SearchResults extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      updatedGoing: '',
+    }
+  }
+
   handleToggleGoing(id, e) {
     console.log(id, e)
-    axios.get('api/togglegoing/' + id)
+    axios.post('api/togglegoing/' + id)
     .then((response) => {
-
+      
     })
     .catch((error) => {
       console.log(error);
@@ -25,14 +32,18 @@ class SearchResults extends Component {
         return (        
           <li key={result.id} className="list-group-item">
             <div className="row">
-              <div className="col-4">
-                <img src={result.image_url} alt="img" style={{height: '90px', width: '90px'}} />
+              <div className="pl-2 pr-1">
+                <img src={result.image_url} alt="img" style={{height: '80px', width: '80px'}} />
               </div>
-              <div className="col-8">
+              <div className="pl-2">
                 <a href={result.url}> {result.name} </a>
 
-                <button onClick={(e) => this.handleToggleGoing(result.id, e)} className="btn btn-secondary">Going!</button>
+                <div>{result.location.address1 + ', ' + result.location.city}</div>
 
+                <div>
+                  <button onClick={(e) => this.handleToggleGoing(result.id, e)} className="btn btn-secondary">Going!</button>
+                  <div>{'Going: ' + result.numberGoing}</div>
+                </div>
               </div>
             </div>
           </li>
