@@ -8,6 +8,7 @@ const yelpAPIKey = process.env.YELP_API_KEY;
 const client = yelp.client(yelpAPIKey); // return a promise
 
 const Business = require('./models/Business');
+const { User } = require('./models/User');
 
 // authCheck
 const authCheck = (req, res, next) => {
@@ -24,6 +25,13 @@ const authCheck = (req, res, next) => {
 // User searches for businesses by location. Server returns list of businesses from Yelp API with number of users going to said businesses taken from MongoDB
 //
 router.get('/api/yelp/search/:id', async (req, res) => {
+  // Save user's search request
+  if (req.user) {
+    User.findByIdAndUpdate(req.user._id, { 
+      $set: { lastSearch: req.params.id }}, function(user) {
+    })
+  }
+
   // Declare Yelp search parameters
   const searchRequest = {
     location: req.params.id,
@@ -92,13 +100,45 @@ router.post('/api/togglegoing/:id', authCheck, function (req, res) {
       }
 
       console.log(String(business.going.length));
-      res.send(String(business.going.length));
+
     }
   })
-  .then(() => {
+  .then(async function() {
 
-  })
-})
+    // Declare Yelp search parameters
+    const searchRequest = {
+      location: req.user.lastSearch,
+      categories: 'Nightlife'
+    };
+    // Perform Yelp search request
+    const yelpResponse = await client.search(searchRequest).catch(console.error);
+    // If no search results found, return now (Reminder to later add React 'No results found' type message in place of search results list). Have not verified Yelp would return 0 or error
+    if (yelpResponse.jsonBody.total === 0) {
+      console.log('No search results found'); 
+      return res.statusCode(204).end();
+    }
+    // Take the array of business objects out of the yelpResponse
+    const yelpBusinesses = yelpResponse.jsonBody.businesses;
+    // Search MongoDB Business collection for businesses that match yelpResponse businesses, by id (not _id)
+    const combinedResults = await Promise.all(yelpBusinesses.map(async (yelpBusiness) => {
+      let business;
+      try {
+        business = await Business.findOne({ yelpId: yelpBusiness.id });
+      }
+      catch(error) {
+        console.log(error);
+      }
+      finally {
+        const numberGoing = business ? business.going.length : 0;
+        return { ...yelpBusiness, numberGoing };
+      }
+
+    }));
+
+    res.send(combinedResults);
+  });
+
+});
 
 
 

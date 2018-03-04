@@ -50,8 +50,8 @@ const authCheck = (req, res, next) => {
     // If user is not logged in
     res.redirect('/');
   }
-};*/
-
+};
+*/
 app.get('/isLoggedIn', function (req, res) {
   if (req.user) {
     console.log(req.user);
@@ -70,7 +70,7 @@ const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGO_URI);
 mongoose.Promise = global.Promise; 
 
-// Priority serve any static files.
+// Priority serve any static files
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 // Cross Origin Resource Sharing
@@ -85,7 +85,7 @@ app.use(bodyParser.urlencoded({'extended':'true'}));
 const routes = require('./routes');
 app.use('/', routes);
 
-// All remaining requests return the React app, so it can handle routing.
+// All remaining requests return the React app, so it can handle routing
 app.route('*', function(request, response) {
   response.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });

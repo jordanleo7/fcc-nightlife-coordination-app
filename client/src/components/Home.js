@@ -8,7 +8,7 @@ class Home extends Component {
     super(props);
     this.state = {
       searchQuery: '',
-      searchResults: JSON.parse(localStorage.getItem('searchResults')) || ''
+      searchResults: ''
     }
     this.handleSearchQueryText = this.handleSearchQueryText.bind(this);
     this.handleSearchQuery = this.handleSearchQuery.bind(this);
@@ -22,9 +22,20 @@ class Home extends Component {
     event.preventDefault();
     axios.get('api/yelp/search/' + this.state.searchQuery)
     .then((response) => {
-      console.log(response);
       this.setState({searchResults: response.data})
-      localStorage.setItem('searchResults', JSON.stringify(response.data));
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+  }
+
+  handleToggleGoing(id, e, index) {
+    console.log(id, e, index)
+    axios.post('api/togglegoing/' + id, {
+      index: index
+    })
+    .then((response) => {
+      this.setState({searchResults: response.data})
     })
     .catch((error) => {
       console.log(error);
@@ -32,6 +43,8 @@ class Home extends Component {
   }
 
   render() {
+
+
     return (
       <div className="container-fluid">
         <div className="row">
@@ -64,7 +77,31 @@ class Home extends Component {
             </form>
           </div>
           <div className="col-12">
-            <SearchResults data={this.state.searchResults} />
+            <div className="pt-3 pb-5">
+              <ul className="list-group">
+                {this.state.searchResults !== '' && this.state.searchResults.map(result => 
+                  <li key={result.id} className="list-group-item">
+                    <div className="row">
+                      <div className="pl-2 pr-1">
+                        <img src={result.image_url} alt="img" style={{height: '80px', width: '80px'}} />
+                      </div>
+                      <div className="pl-2">
+                        <a href={result.url}> {result.name} </a>
+
+                        <div>{result.location.address1 + ', ' + result.location.city}</div>
+
+                        <div>
+                          <button onClick={(e) => this.handleToggleGoing(result.id, e)} className="btn btn-secondary">Going!</button>
+                          <div>{'Going: ' + result.numberGoing}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>) 
+                }
+              </ul>
+              <div>Search results provided by <a href="https://www.yelp.com/">Yelp</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

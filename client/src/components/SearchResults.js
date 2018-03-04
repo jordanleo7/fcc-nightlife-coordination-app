@@ -1,21 +1,22 @@
 import React, { Component } from 'react';
-import './SearchResults.css'
 import axios from 'axios';
 
 class SearchResults extends Component {
 
   constructor(props) {
-    super(props);
+    super(props); 
     this.state = {
-      updatedGoing: '',
+      searchData: this.props.searchData
     }
   }
 
-  handleToggleGoing(id, e) {
-    console.log(id, e)
-    axios.post('api/togglegoing/' + id)
+  handleToggleGoing(id, e, index) {
+    console.log(id, e, index)
+    axios.post('api/togglegoing/' + id, {
+      index: index
+    })
     .then((response) => {
-      
+
     })
     .catch((error) => {
       console.log(error);
@@ -24,11 +25,11 @@ class SearchResults extends Component {
 
   render() {
 
-    const search = this.props.data;
+    let search = this.state.searchData;
     let results = '';
 
     if (search) {
-      results = search.map((result) => {
+      results = search.map((result, index) => {
         return (        
           <li key={result.id} className="list-group-item">
             <div className="row">
@@ -41,7 +42,7 @@ class SearchResults extends Component {
                 <div>{result.location.address1 + ', ' + result.location.city}</div>
 
                 <div>
-                  <button onClick={(e) => this.handleToggleGoing(result.id, e)} className="btn btn-secondary">Going!</button>
+                  <button onClick={(e) => this.handleToggleGoing(result.id, e, index)} className="btn btn-secondary">Going!</button>
                   <div>{'Going: ' + result.numberGoing}</div>
                 </div>
               </div>
