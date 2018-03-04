@@ -30,7 +30,7 @@ require('./config/passport');
 
 app.get('/auth/logout', (req,res) => {
   req.logout();
-  res.redirect('http://localhost:3000/');
+  res.redirect('/');
 })
 
 app.get('/auth/google', passport.authenticate('google', {
@@ -39,7 +39,7 @@ app.get('/auth/google', passport.authenticate('google', {
 
 app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => {
   // dev mode: http://localhost:3000/   prod mode: /
-  res.redirect('http://localhost:3000/');
+  res.redirect('/');
 });
 /*
 const authCheck = (req, res, next) => {
