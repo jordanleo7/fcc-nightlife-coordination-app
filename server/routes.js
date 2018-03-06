@@ -17,7 +17,8 @@ const authCheck = (req, res, next) => {
     next();
   } else {
     // If user is not logged in
-    res.redirect('/');
+    console.log('Please log in to complete your request');
+    res.redirect('/auth/google');
   }
 };
 
