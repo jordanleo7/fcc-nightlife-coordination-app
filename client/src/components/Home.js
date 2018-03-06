@@ -31,25 +31,27 @@ class Home extends Component {
   }
 
   handleToggleGoing(id, e, index) {
-    console.log(id, e, index)
-    axios.post('api/togglegoing/' + id, {
-      index: index
-    })
-    .then((response) => {
-      console.log(response);
-      this.setState({searchResults: response.data})
-      localStorage.setItem('searchResults', JSON.stringify(response.data));
-    })
-    .catch((error) => {
-      console.log(error);
-    })
+    if (isLoggedIn !== 'Not logged in') {
+      console.log(id, e, index)
+      axios.post('api/togglegoing/' + id, {
+        index: index
+      })
+      .then((response) => {
+        console.log(response);
+        this.setState({searchResults: response.data})
+        localStorage.setItem('searchResults', JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+    }
   }
 
   render() {
 
     const isLoggedIn = this.state.isLoggedIn;
     let notice = null;
-    if (isLoggedIn === 'Not logged in') {
+    if (this.state.isLoggedIn === 'Not logged in') {
       notice = (<div className="col-12 pt-3">Search by location to view how many people are going to local nightlife businesses. Log in to add yourself.</div>)
     }
 
