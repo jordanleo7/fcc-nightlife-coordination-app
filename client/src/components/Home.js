@@ -8,7 +8,7 @@ class Home extends Component {
     super(props);
     this.state = {
       searchQuery: '',
-      searchResults: '',
+      searchResults: JSON.parse(localStorage.getItem('searchResults')) || '',
       isLoggedIn: this.props.isLoggedIn
     }
     this.handleSearchQueryText = this.handleSearchQueryText.bind(this);
@@ -23,7 +23,8 @@ class Home extends Component {
     event.preventDefault();
     axios.get('api/yelp/search/' + this.state.searchQuery)
     .then((response) => {
-      this.setState({searchResults: response.data})
+      this.setState({searchResults: response.data});
+      localStorage.setItem('searchResults', JSON.stringify(response.data));
     })
     .catch((error) => {
       console.log(error);
@@ -38,6 +39,7 @@ class Home extends Component {
     .then((response) => {
       console.log(response);
       this.setState({searchResults: response.data})
+      localStorage.setItem('searchResults', JSON.stringify(response.data));
     })
     .catch((error) => {
       console.log(error);
@@ -46,6 +48,11 @@ class Home extends Component {
 
   render() {
 
+    const isLoggedIn = this.state.isLoggedIn;
+    let notice = null;
+    if (isLoggedIn === 'Not logged in') {
+      notice = (<div className="col-12 pt-3">Search by location to view how many people are going to local nightlife businesses. Log in to add yourself.</div>)
+    }
 
     return (
       <div className="container-fluid">
@@ -78,6 +85,9 @@ class Home extends Component {
               </div>
             </form>
           </div>
+
+          {notice}
+
           <div className="col-12">
             <div className="pt-3 pb-5">
               <ul className="list-group">
