@@ -36,7 +36,7 @@ authRouter.get('/isLoggedIn', function (req, res) {
     res.send('Not logged in');
   }
 })
-//
-//////////////////////
+
+
 
 module.exports = authRouter;

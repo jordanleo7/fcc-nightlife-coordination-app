@@ -27,11 +27,11 @@ const authCheck = (req, res, next) => {
 //
 router.get('/api/yelp/search/:id', async (req, res) => {
   // Save user's search request
-  if (req.user) {
-    User.findByIdAndUpdate(req.user._id, { 
-      $set: { lastSearch: req.params.id }}, function(user) {
-    })
-  }
+  //if (req.user) {
+  //  User.findByIdAndUpdate(req.user._id, { 
+  //    $set: { lastSearch: req.params.id }}, function(user) {
+  //  })
+  //}
 
   // Declare Yelp search parameters
   const searchRequest = {
@@ -41,10 +41,10 @@ router.get('/api/yelp/search/:id', async (req, res) => {
   // Perform Yelp search request
   const yelpResponse = await client.search(searchRequest).catch(console.error);
   // If no search results found, return now (Reminder to later add React 'No results found' type message in place of search results list). Have not verified Yelp would return 0 or error
-  if (yelpResponse.jsonBody.total === 0) {
-    console.log('No search results found'); 
-    return res.statusCode(204).end();
-  }
+  //if (yelpResponse.jsonBody.total === 0) {
+  //  console.log('No search results found'); 
+  //  return res.statusCode(204).end();
+  //}
   // Take the array of business objects out of the yelpResponse
   const yelpBusinesses = yelpResponse.jsonBody.businesses;
   // Search MongoDB Business collection for businesses that match yelpResponse businesses, by id (not _id)
@@ -63,7 +63,6 @@ router.get('/api/yelp/search/:id', async (req, res) => {
 
   }));
 
-  console.log(combinedResults);
   res.send(combinedResults);
 
 })
@@ -99,9 +98,6 @@ router.post('/api/togglegoing/:id', authCheck, function (req, res) {
         // Save business document
         business.save();
       }
-
-      console.log(String(business.going.length));
-
     }
   })
   .then(async function() {
