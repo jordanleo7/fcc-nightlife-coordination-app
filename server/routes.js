@@ -75,10 +75,7 @@ router.post('/api/togglegoing/:id', authCheck, function (req, res) {
   Business.findOne({yelpId: req.params.id}, function (err, business) {
     // If business not found, create it
     if (business === null) {
-      Business.create({yelpId: req.params.id, going: [req.user.id]}).then((newBusiness) => {
-        console.log('Business created');
-        res.send(newBusiness);
-      })
+      Business.create({yelpId: req.params.id, going: [req.user.id]})
     } 
     // If business found,
     if (business) {
@@ -104,7 +101,7 @@ router.post('/api/togglegoing/:id', authCheck, function (req, res) {
 
     // Declare Yelp search parameters
     const searchRequest = {
-      location: req.user.lastSearch,
+      location: req.body.searchQuery,
       categories: 'Nightlife'
     };
     // Perform Yelp search request

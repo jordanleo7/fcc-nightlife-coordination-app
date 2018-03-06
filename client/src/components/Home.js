@@ -20,6 +20,7 @@ class Home extends Component {
 
   handleSearchQuery(event) {
     event.preventDefault();
+    localStorage.setItem('searchQuery', JSON.stringify(this.state.searchQuery));
     axios.get('api/yelp/search/' + this.state.searchQuery)
     .then((response) => {
       this.setState({searchResults: response.data});
@@ -30,11 +31,11 @@ class Home extends Component {
     })
   }
 
-  handleToggleGoing(id, e, index) {
+  handleToggleGoing(id, e) {
+    e.preventDefault();
     if (this.state.isLoggedIn !== 'Not logged in') {
-      console.log(id, e, index)
       axios.post('api/togglegoing/' + id, {
-        index: index
+        searchQuery: JSON.parse(localStorage.getItem('searchQuery'))
       })
       .then((response) => {
         console.log(response);
