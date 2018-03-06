@@ -11,10 +11,6 @@ const app = express();
 const cookieSession = require('cookie-session');
 const PORT = process.env.PORT || 3001;
 
-//////////////////////////////////
-// User authentication
-//
-
 app.use(cookieSession({
   // 24 hour session
   maxAge: 24 * 60 * 60 * 1000,
@@ -22,47 +18,12 @@ app.use(cookieSession({
 }));
 
 // Initialize Passport
+require('./config/passport');
 app.use(passport.initialize());
 app.use(passport.session());
 
-// http://localhost:3000/
-require('./config/passport');
-
-app.get('/auth/logout', (req,res) => {
-  req.logout();
-  res.redirect('/');
-})
-
-app.get('/auth/google', passport.authenticate('google', {
-  scope: ['profile']
-}));
-
-app.get('/auth/google/redirect', passport.authenticate('google'), (req, res) => {
-  // dev mode: http://localhost:3000/   prod mode: /
-  res.redirect('/');
-});
-/*
-const authCheck = (req, res, next) => {
-  if (req.user) {
-    // If logged in
-    next();
-  } else {
-    // If user is not logged in
-    res.redirect('/');
-  }
-};
-*/
-app.get('/isLoggedIn', function (req, res) {
-  if (req.user) {
-    console.log(req.user);
-    res.send(req.user);
-  } else {
-    console.log('Not logged in');
-    res.send('Not logged in');
-  }
-})
-//
-//////////////////////
+const authRouter = require('./authRouter');
+app.use('/', authRouter);
 
 // MongoDB connection
 const Business = require('./models/Business');

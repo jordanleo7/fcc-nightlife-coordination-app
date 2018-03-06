@@ -1,28 +1,20 @@
 import React, { Component } from 'react';
 
-class LoginButton extends Component {
-
-  render() {
-
-    let loginButton = null;
-
-    if (this.props.isLoggedIn.username) {
-      loginButton = <li className="nav-item">
-                      <a href="/auth/logout" className="nav-link">Log out</a>
-                    </li>
-    } else {
-      loginButton = <li className="nav-item">
-                      <a href="/auth/google" className="nav-link">Log in</a>
-                    </li>
-    }
-
+function LoginButton(props) {
+  const isLoggedIn = props.isLoggedIn;
+  if (isLoggedIn !== 'Not logged in') {
     return (
-      <div>
-       {loginButton}
-      </div>
+      <li className="nav-item">
+        <a href="/auth/logout" className="nav-link">Log out</a>
+      </li>
+    )
+  } else {
+    return (
+      <li className="nav-item">
+        <a href="/auth/google" className="nav-link">Log in</a>
+      </li>
     )
   }
-
 }
 
 export default LoginButton

@@ -8,7 +8,8 @@ class Home extends Component {
     super(props);
     this.state = {
       searchQuery: '',
-      searchResults: ''
+      searchResults: '',
+      isLoggedIn: this.props.isLoggedIn
     }
     this.handleSearchQueryText = this.handleSearchQueryText.bind(this);
     this.handleSearchQuery = this.handleSearchQuery.bind(this);
@@ -35,6 +36,7 @@ class Home extends Component {
       index: index
     })
     .then((response) => {
+      console.log(response);
       this.setState({searchResults: response.data})
     })
     .catch((error) => {
