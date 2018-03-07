@@ -53,7 +53,7 @@ class Home extends Component {
     const isLoggedIn = this.state.isLoggedIn;
     let notice = null;
     if (isLoggedIn === 'Not logged in') {
-      notice = (<div className="col-12 pt-3">Search by location to view how many people are going to local nightlife businesses. Log in to add yourself.</div>)
+      notice = (<div className="col-12 pt-3">Search by location to view how many people are going to local nightlife businesses. You must be logged in with your Google account to toggle going.</div>)
     }
 
     return (
@@ -102,11 +102,11 @@ class Home extends Component {
                       <div className="pl-2">
                         <a href={result.url}> {result.name} </a>
 
-                        <div>{result.location.address1 + ', ' + result.location.city}</div>
+                        <div>{result.location.address1}</div>
+                        <div>{result.location.city + ', ' + result.location.state + ' ' + result.location.zip_code}</div>
 
                         <div>
-                          <button onClick={(e) => this.handleToggleGoing(result.id, e)} className="btn btn-secondary">Going!</button>
-                          <div>{'Going: ' + result.numberGoing}</div>
+                          <button onClick={(e) => this.handleToggleGoing(result.id, e)} className="btn btn-secondary">{'Going: ' + result.numberGoing}</button>
                         </div>
                       </div>
                     </div>
