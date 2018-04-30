@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom'
 import App from './App';
-import registerServiceWorker from './registerServiceWorker';
+//import registerServiceWorker from './registerServiceWorker';
 
 ReactDOM.render(
   <BrowserRouter>
@@ -10,4 +10,4 @@ ReactDOM.render(
   </BrowserRouter>,
   document.getElementById('root'));
 
-registerServiceWorker();
+//registerServiceWorker(); Disabled this to fix /auth/google
