@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import SearchResults from './SearchResults';
 
 class Home extends Component {
 
@@ -21,6 +20,7 @@ class Home extends Component {
 
   handleSearchQuery(event) {
     event.preventDefault();
+    localStorage.setItem('searchQuery', JSON.stringify(this.state.searchQuery));
     axios.get('api/yelp/search/' + this.state.searchQuery)
     .then((response) => {
       this.setState({searchResults: response.data});
@@ -31,19 +31,21 @@ class Home extends Component {
     })
   }
 
-  handleToggleGoing(id, e, index) {
-    console.log(id, e, index)
-    axios.post('api/togglegoing/' + id, {
-      index: index
-    })
-    .then((response) => {
-      console.log(response);
-      this.setState({searchResults: response.data})
-      localStorage.setItem('searchResults', JSON.stringify(response.data));
-    })
-    .catch((error) => {
-      console.log(error);
-    })
+  handleToggleGoing(id, e) {
+    e.preventDefault();
+    if (this.state.isLoggedIn !== 'Not logged in') {
+      axios.post('api/togglegoing/' + id, {
+        searchQuery: JSON.parse(localStorage.getItem('searchQuery'))
+      })
+      .then((response) => {
+        console.log(response);
+        this.setState({searchResults: response.data})
+        localStorage.setItem('searchResults', JSON.stringify(response.data));
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+    }
   }
 
   render() {
@@ -51,7 +53,7 @@ class Home extends Component {
     const isLoggedIn = this.state.isLoggedIn;
     let notice = null;
     if (isLoggedIn === 'Not logged in') {
-      notice = (<div className="col-12 pt-3">Search by location to view how many people are going to local nightlife businesses. Log in to add yourself.</div>)
+      notice = (<div className="col-12 pt-3">Search by location to view how many people are going to local nightlife businesses. You must be logged in with your Google account to toggle going.</div>)
     }
 
     return (
@@ -100,11 +102,11 @@ class Home extends Component {
                       <div className="pl-2">
                         <a href={result.url}> {result.name} </a>
 
-                        <div>{result.location.address1 + ', ' + result.location.city}</div>
+                        <div>{result.location.address1}</div>
+                        <div>{result.location.city + ', ' + result.location.state + ' ' + result.location.zip_code}</div>
 
                         <div>
-                          <button onClick={(e) => this.handleToggleGoing(result.id, e)} className="btn btn-secondary">Going!</button>
-                          <div>{'Going: ' + result.numberGoing}</div>
+                          <button onClick={(e) => this.handleToggleGoing(result.id, e)} className="btn btn-secondary">{'Going: ' + result.numberGoing}</button>
                         </div>
                       </div>
                     </div>
